@@ -2,10 +2,8 @@ import { Controller, Get, Post, Body, Patch, Param, Delete, ParseIntPipe, Valida
 import { TodosService } from '../services/todos.service';
 import { CreateTodoDto } from '../dtos/create-todo.dto';
 import { UpdateTodoDto } from '../dtos/update-todo.dto';
-// import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
 
-// @UseGuards(JwtAuthGuard)
-@Controller('todos')
+@Controller('api/todos')
 export class TodosController {
     constructor(private readonly todosService: TodosService) {}
 

@@ -1,5 +1,5 @@
-import { Body, Controller, Get, Param, Post, UnauthorizedException } from '@nestjs/common';
-import { Auth, CreateUserDto, QueueService, UserEntity, UserService } from '@servicelabsco/nestjs-utility-services';
+import { Body, Controller, Get, NotAcceptableException, Param, Post, UnauthorizedException } from '@nestjs/common';
+import { Auth, AuthService, CreateUserDto, Hash, QueueService, UserEntity, UserService } from '@servicelabsco/nestjs-utility-services';
 import { AppService } from './app.service';
 
 @Controller()
@@ -7,29 +7,48 @@ export class AppController {
     constructor(
         private readonly appService: AppService,
         private readonly queueService: QueueService,
-        // private readonly usersService: UsersService,
-        private readonly userService: UserService
+        private readonly userService: UserService,
+        private readonly authService: AuthService
     ) {}
 
     @Post('/register')
     async register(@Body() createUserDto: CreateUserDto): Promise<UserEntity> {
-        // const user = await this.userService.validateUser(loginCredentials.email, loginCredentials.password);
-        console.log(createUserDto);
-        // const newUser = new UserEntity();
-        // const newUser = await this.userService.createUser(createUserDto);
-        return UserEntity.firstOrCreate(createUserDto);
+        // userService.createUser was not working so I copied this code directly from the method definition
+        let user = await this.userService.findUserByEmail(createUserDto.email);
+        console.log('...', user);
+
+        // The problem seems to be at the line below this. I changed undefined to null.
+        // the user userService.findUserByEmail returns null if user is not found in the database.
+        if (user !== null) return user;
+
+        user = new UserEntity();
+
+        user.email = createUserDto.email;
+        user.name = createUserDto.name;
+
+        // check if password is supplied or not
+        if (createUserDto.password) user.password = Hash.hash(createUserDto.password);
+
+        await user.save();
+
+        return user;
+
+        // It should have been something like this
+        // return await this.userService.createUser(createUserDto);
     }
 
     @Post('/login')
     async login(@Body() loginCredentials: { email: string; password: string }) {
         const user = await this.userService.validateUser(loginCredentials.email, loginCredentials.password);
+        // const user = await this.userService.findUserByEmail(loginCredentials.email);
 
         if (!user) {
             throw new UnauthorizedException();
         }
 
-        return user;
-        // return this.authService.login(loginCredentials);
+        const token = await this.authService.generateAuthJwtToken({ email: user.email, sub: user.id });
+
+        return { access_token: token };
     }
 
     @Get()
