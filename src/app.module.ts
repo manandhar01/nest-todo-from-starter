@@ -18,6 +18,8 @@ import { CommonModule } from './common/common.module';
 import * as queueConfig from './config/queue.config';
 import * as ormconfig from './config/typeorm.config';
 import { WorkerService } from './worker.service';
+import { TodosModule } from './todos/todos.module';
+import { UsersModule } from './users/users.module';
 
 @Module({
     imports: [
@@ -29,6 +31,8 @@ import { WorkerService } from './worker.service';
         PlatformUtilityModule,
         CommandModule,
         ConsoleModule,
+        TodosModule,
+        UsersModule,
     ],
     controllers: [AppController],
     providers: [AppService, WorkerService],
