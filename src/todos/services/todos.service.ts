@@ -12,7 +12,7 @@ export class TodosService {
 
     async getAll(is_done?: boolean) {
         if (is_done === undefined) {
-            return TodoEntity.find();
+            return TodoEntity.find({ order: { todo: 'DESC' }, take: 1 });
         }
         return TodoEntity.find({ where: { is_done } });
     }

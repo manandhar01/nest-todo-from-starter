@@ -19,7 +19,6 @@ import * as queueConfig from './config/queue.config';
 import * as ormconfig from './config/typeorm.config';
 import { WorkerService } from './worker.service';
 import { TodosModule } from './todos/todos.module';
-import { UsersModule } from './users/users.module';
 
 @Module({
     imports: [
@@ -32,7 +31,6 @@ import { UsersModule } from './users/users.module';
         CommandModule,
         ConsoleModule,
         TodosModule,
-        UsersModule,
     ],
     controllers: [AppController],
     providers: [AppService, WorkerService],

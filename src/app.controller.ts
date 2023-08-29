@@ -1,9 +1,6 @@
 import { Body, Controller, Get, Param, Post, UnauthorizedException } from '@nestjs/common';
 import { Auth, CreateUserDto, QueueService, UserEntity, UserService } from '@servicelabsco/nestjs-utility-services';
 import { AppService } from './app.service';
-// import { UsersService } from './users/services/users.service';
-import { AddUserDto } from './users/dtos/add-user.dto';
-import { LoginCredentialsDto } from './users/dtos/login-user.dto';
 
 @Controller()
 export class AppController {
@@ -16,12 +13,15 @@ export class AppController {
 
     @Post('/register')
     async register(@Body() createUserDto: CreateUserDto): Promise<UserEntity> {
-        return await this.userService.createUser(createUserDto);
-        // return this.usersService.addUser(addUserDto);
+        // const user = await this.userService.validateUser(loginCredentials.email, loginCredentials.password);
+        console.log(createUserDto);
+        // const newUser = new UserEntity();
+        // const newUser = await this.userService.createUser(createUserDto);
+        return UserEntity.firstOrCreate(createUserDto);
     }
 
     @Post('/login')
-    async login(@Body() loginCredentials: LoginCredentialsDto) {
+    async login(@Body() loginCredentials: { email: string; password: string }) {
         const user = await this.userService.validateUser(loginCredentials.email, loginCredentials.password);
 
         if (!user) {
