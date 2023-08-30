@@ -1,6 +1,6 @@
 import { CommonEntity } from '@servicelabsco/nestjs-utility-services';
 import { Column, Entity, ManyToOne } from 'typeorm';
-// import { User } from '../../users/entities/user.entity';
+// import { UserEntity } from '@servicelabsco/nestjs-utility-services';
 
 @Entity('todos')
 export class TodoEntity extends CommonEntity {
@@ -10,6 +10,9 @@ export class TodoEntity extends CommonEntity {
     @Column({ default: false })
     is_done: boolean;
 
-    // @ManyToOne(() => User, (user) => user.todos)
+    @Column()
+    user_id: number;
+
+    // @ManyToOne(() => UserEntity, (user) => user.todos)
     // user: User;
 }

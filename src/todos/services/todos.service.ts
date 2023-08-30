@@ -1,38 +1,63 @@
 import { Injectable } from '@nestjs/common';
 import { CreateTodoDto } from '../dtos/create-todo.dto';
 import { TodoEntity } from '../entities/todo.entity';
-import { AccessException } from '@servicelabsco/nestjs-utility-services';
+import { AccessException, Auth } from '@servicelabsco/nestjs-utility-services';
 import { UpdateTodoDto } from '../dtos/update-todo.dto';
 
 @Injectable()
 export class TodosService {
     async create(createTodoDto: CreateTodoDto) {
-        return TodoEntity.firstOrCreate(createTodoDto);
+        const user = Auth.user();
+
+        const newTodo = new TodoEntity();
+
+        newTodo.todo = createTodoDto.todo;
+        newTodo.is_done = createTodoDto.is_done;
+        newTodo.user_id = user.id;
+
+        return newTodo.save();
     }
 
     async getAll(is_done?: boolean) {
+        const user = Auth.user();
+
         if (is_done === undefined) {
-            return TodoEntity.find({ order: { todo: 'DESC' }, take: 1 });
+            return TodoEntity.find({ where: { user_id: user.id } });
         }
-        return TodoEntity.find({ where: { is_done } });
+
+        return TodoEntity.find({ where: { is_done, user_id: user.id } });
     }
 
     async getOne(id: number) {
-        return TodoEntity.first(id);
+        const user = Auth.user();
+
+        return TodoEntity.findOne({ where: { id, user_id: user.id } });
     }
 
     async update(id: number, updateTodoDto: UpdateTodoDto) {
-        const record = await TodoEntity.first(id);
+        const user = Auth.user();
+
+        const record = await TodoEntity.findOne({ where: { id, user_id: user.id } });
 
         if (!record) {
             throw new AccessException();
         }
 
         record.todo = updateTodoDto.todo;
+        record.is_done = updateTodoDto.is_done;
+
         return record.save();
     }
 
     async delete(id: number) {
-        return TodoEntity.softDelete({ id });
+        const user = Auth.user();
+
+        const record = await TodoEntity.findOne({ where: { id, user_id: user.id } });
+
+        if (!record) {
+            throw new AccessException();
+        }
+
+        return TodoEntity.softDelete({ id, user_id: user.id });
     }
 }

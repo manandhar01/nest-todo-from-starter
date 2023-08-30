@@ -1,4 +1,4 @@
-import { Body, Controller, Get, NotAcceptableException, Param, Post, UnauthorizedException } from '@nestjs/common';
+import { Body, Controller, Get, Param, Post, UnauthorizedException } from '@nestjs/common';
 import { Auth, AuthService, CreateUserDto, Hash, QueueService, UserEntity, UserService } from '@servicelabsco/nestjs-utility-services';
 import { AppService } from './app.service';
 
@@ -46,7 +46,9 @@ export class AppController {
             throw new UnauthorizedException();
         }
 
-        const token = await this.authService.generateAuthJwtToken({ email: user.email, sub: user.id });
+        console.log(user);
+
+        const token = await this.authService.generateAuthJwtToken({ email: user.email, id: user.id });
 
         return { access_token: token };
     }
